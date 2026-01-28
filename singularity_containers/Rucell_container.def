@@ -4,6 +4,9 @@ From: rocker/r-base:latest
 %post
     export DEBIAN_FRONTEND=noninteractive
 
+    ##############################################################
+    ### System dependencies (X11-free)
+    ##############################################################
     apt-get update
     apt-get install -y \
         wget git build-essential \
@@ -46,7 +49,7 @@ From: rocker/r-base:latest
 
     # Bioconductor packages
     Rscript -e 'if (!require("BiocManager")) install.packages("BiocManager", repos="https://cloud.r-project.org")'
-    Rscript -e 'BiocManager::install(c("qusage", "fgsea"), ask=FALSE)'
+    Rscript -e 'BiocManager::install(c("qusage", "UCell"), ask=FALSE)'
 
     echo '. /opt/default/bin/activate' >> $SINGULARITY_ENVIRONMENT
 
@@ -54,4 +57,4 @@ From: rocker/r-base:latest
     export PATH="/usr/local/bin:$PATH"
     
 %test
-    Rscript -e 'library(fgsea)'
+    Rscript -e 'library(UCell)'

@@ -1,0 +1,60 @@
+Bootstrap: docker
+From: rocker/r-base:latest
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+    ##############################################################
+    ### System dependencies (X11-free)
+    ##############################################################
+    apt-get update
+    apt-get install -y \
+        wget git build-essential \
+        libxml2-dev libcurl4-openssl-dev libssl-dev \
+        libfontconfig1-dev libfreetype6-dev \
+        libharfbuzz-dev libfribidi-dev \
+        libpng-dev libtiff5-dev libjpeg-dev \
+        libbz2-dev liblzma-dev zlib1g-dev \
+        libreadline-dev libffi-dev libsqlite3-dev \
+        libicu-dev \
+        libcairo2-dev \
+        libfftw3-dev
+
+    ##############################################################
+    ### Install Python 3.12
+    ##############################################################
+    wget https://www.python.org/ftp/python/3.12.6/Python-3.12.6.tgz
+    tar -xf Python-3.12.6.tgz
+    cd Python-3.12.*/
+    ./configure --enable-optimizations
+    make -j 4
+    make altinstall
+
+    # virtualenv
+    cd /opt
+    python3.12 -m venv "default"
+    . default/bin/activate
+
+    pip install gitpython==3.1.43 isodate pydantic-core
+
+    ##############################################################
+    ### Install R packages (X11-free)
+    ##############################################################
+
+    # systemfonts will compile without X11 because Cairo is available
+    Rscript -e 'install.packages(c("systemfonts"), repos="https://cloud.r-project.org")'
+
+    # tidyverse (falls back to Cairo instead of ragg)
+    Rscript -e 'install.packages(c("tidyverse", "optparse","pheatmap"), repos="https://cloud.r-project.org")'
+
+    # Bioconductor packages
+    Rscript -e 'if (!require("BiocManager")) install.packages("BiocManager", repos="https://cloud.r-project.org")'
+    Rscript -e 'BiocManager::install(c("qusage", "fgsea"), ask=FALSE)'
+
+    echo '. /opt/default/bin/activate' >> $SINGULARITY_ENVIRONMENT
+
+%environment
+    export PATH="/usr/local/bin:$PATH"
+    
+%test
+    Rscript -e 'library(fgsea)'

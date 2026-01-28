@@ -1,0 +1,55 @@
+Bootstrap: docker
+From: ubuntu:24.04
+
+%labels
+    Author "LR"
+    Purpose "Python image with scientific stack"
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y
+
+    #########################################################
+    ### Install Python + build essentials
+    #########################################################
+    apt-get install -y \
+        python3 \
+        python3-pip \
+        python3-venv \
+        python3-dev \
+        git \
+        build-essential \
+        libatlas-base-dev \
+        gfortran
+
+    python3 -m venv /opt/pyenv
+    . /opt/pyenv/bin/activate
+
+    pip install --upgrade pip
+    pip install gitpython==3.1.43 isodate pydantic-core
+
+    #########################################################
+    ### Install Python packages
+    #########################################################
+    pip install \
+        numpy \
+        pandas \
+        scikit-learn \
+        matplotlib \
+        seaborn \
+        plotnine
+
+    echo '. /opt/pyenv/bin/activate' >> $SINGULARITY_ENVIRONMENT
+
+%environment
+    . /opt/pyenv/bin/activate
+
+%test
+    python - <<EOF
+    import numpy, pandas
+    import sklearn
+    import matplotlib
+    import seaborn
+    import plotnine
+    print("All Python packages loaded successfully.")
+    EOF
