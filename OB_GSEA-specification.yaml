@@ -1,0 +1,264 @@
+---
+## benchmark shortname
+id: OB_GSEA
+description: Comparison of single sample Gene Set Enrichment Analysis methods for functional analysis in research and diagnostics
+version: 1.0
+
+## Benchmark builder/contact person
+benchmarker: "Luca Robinson, luca.robinson@regionh.dk"
+
+## Storage flavour for sharing results: currently only S3
+# storage_api: S3
+
+## S3 endpoint to share our benchmark results.
+##   `https://s3_object_storage_url.ch` does not exist, and we don't mind -
+##   not sharing results from our benchmark yet.
+# storage: https://s3_object_storage_url.ch
+
+## Benchmark YAML schema/specification version.
+benchmark_yaml_spec: 0.1
+
+## License
+## license: MIT  # not yet part of the schema
+
+## The software backend used to run the benchmark
+software_backend: apptainer
+
+## Software environment recipes associated to this benchmark.
+##  Suffice to say they are apptainer images in some ORAS-compatible registry.
+software_environments:
+  R_base:
+    description: "R 4.5.1 base"
+    apptainer: ../singularity_containers/Rbase_container.sif
+  R_singscore:
+    description: "R 4.5.1 with singscore dependancies"
+    apptainer: ../singularity_containers/Rsingscore_container.sif
+  R_gsva:
+    description: "R 4.5.1 with GSVA dependancies"
+    apptainer: ../singularity_containers/Rgsva_container.sif
+  R_fgsea:
+    description: "R 4.5.1 with fGSEA dependancies"
+    apptainer: ../singularity_containers/Rfgsea_container.sif
+  R_ucell:
+    description: "R 4.5.1 with UCell dependancies"
+    apptainer: ../singularity_containers/RUCell_container.sif
+  Py_metrics:
+    description: "Python container for metrics"
+    apptainer: ../singularity_containers/Python_metrics_container.sif
+
+
+metric_collectors:
+  - id: Metricsplotting
+    name: "Metrics plotting per dataset"
+    software_environment: "Py_metrics"
+    repository:
+      url: https://github.com/cphgeno/OB_GSEA-MetricsCollector.git
+      commit: 0cb0bfd
+    inputs:
+      - MetricsValidation.flag
+    outputs:
+      - id: Metricsplotting.complete
+        path: "{input}/{name}/plotting_wrapper_complete.flag"
+
+
+stages:
+  #################
+  #Data collection#
+  #################
+  - id: data
+    modules:
+      - id: TCGAnormal
+        name: "TCGA counts and sex manual analysis"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets Tissues_DESeq"
+          - values: ["--genesets", "Tissues_DESeq", "--wreference", "VSdf"]
+          - values: "--genesets Sex_Manual"
+          - values: ["--genesets", "Sex_Manual", "--wreference", "VSdf"]
+      - id: TCGAtumour
+        name: "TCGA counts and sex manual analysis"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets CancerType_DLA"
+          - values: ["--genesets", "CancerType_DLA", "--wreference", "VSdf"]
+          - values: "--genesets Sex_Manual"
+          - values: ["--genesets", "Sex_Manual", "--wreference", "VSdf"]
+      - id: TCGABRCA
+        name: "TCGA counts for Breast cancer with subtype"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets BreastCancer_MSigDBSmid"
+          - values: ["--genesets", "BreastCancer_MSigDBSmid", "--wreference", "VSdf"]
+      - id: GTEX
+        name: "GTEX counts testing data"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets Tissues_DESeq"
+          - values: "--genesets Sex_Manual"
+      - id: GSE214654
+        name: "GSE214654 BRAIN counts"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets Neuro_MSigDBGOBP"
+          - values: ["--genesets", "Neuro_MSigDBGOBP", "--wreference", "VSdf"]
+      - id: CellCycleDB
+        name: "CellCycleDB Cell cycle analysis"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets CellCycle_MSigDBReactome"
+          - values: ["--genesets", "CellCycle_MSigDBReactome", "--wreference", "VSdf"]
+          - values: "--genesets CellCycle_MSigDBWhitfield"
+          - values: ["--genesets", "CellCycle_MSigDBWhitfield", "--wreference", "VSdf"]
+      - id: O2DB
+        name: "O2DB Hypoxia and Hyperoxia counts"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-data_collection.git
+          commit: 3310fde
+        parameters:
+          - values: "--genesets Oxia_MSigDB"
+          - values: ["--genesets", "Oxia_MSigDB", "--wreference", "VSdf"]
+          - values: "--genesets Oxia_MSigDBHallmark"
+          - values: ["--genesets", "Oxia_MSigDBHallmark", "--wreference", "VSdf"]
+    outputs:
+      - id: data.counts
+        path: "{dataset}-counts.tsv"
+      - id: data.metadata
+        path: "{dataset}-metadata.tsv"
+      - id: data.genesets
+        path: "{dataset}-GenesetsOI.gmt"
+      - id: data.referencecounts
+        path: "{dataset}-REFERENCE-counts.tsv"
+  ###############
+  #Preprocessing#
+  ###############
+  - id: preprocessing
+    modules:
+      - id: ranking
+        name: "Data preparation for input to GSEA tools"
+        software_environment: "R_base"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-preprocessing.git
+          commit: cd3cfed
+    inputs:
+      - entries:
+        - data.counts
+        - data.metadata
+        - data.genesets
+        - data.referencecounts
+    outputs:
+      - id: preprocessing.sampleranks
+        path: "{dataset}-sampleranks.tsv"
+      - id: preprocessing.samplediffranks
+        path: "{dataset}-samplediffranks.tsv"
+      - id: preprocessing.referenceranks
+        path: "{dataset}-referenceranks.tsv"
+      - id: preprocessing.meta
+        path: "{dataset}-metadata_preprocessed.tsv"
+      - id: preprocessing.genesets
+        path: "{dataset}-GenesetsOI_preprocessed.gmt"
+  ###############
+  #Tools section#
+  ###############
+  - id: ScoringTools
+    modules:
+      - id: fgsea
+        software_environment: "R_fgsea"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-fGSEA_scoring.git
+          commit: 9415bd6
+        parameters:
+          - values: "--input_type RankExpr"
+          - values: "--input_type DeltaCentroid"
+      - id: gsva
+        software_environment: "R_gsva"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-GSVA_scoring.git
+          commit: 68a93e7
+        parameters:
+          - values: ["--algorithm", "gsva", "--input_type", "RankExpr"]
+          - values: ["--algorithm", "gsva", "--input_type", "DeltaCentroid"]
+          - values: ["--algorithm", "gsva", "--input_type", "RankReference"]
+          - values: ["--algorithm", "plage", "--input_type", "RankExpr"]
+          - values: ["--algorithm", "plage", "--input_type", "DeltaCentroid"]
+          - values: ["--algorithm", "plage", "--input_type", "RankReference"]
+          - values: ["--algorithm", "zscore", "--input_type", "RankExpr"]
+          - values: ["--algorithm", "zscore", "--input_type", "DeltaCentroid"]
+          - values: ["--algorithm", "zscore", "--input_type", "RankReference"]
+      - id: singscore
+        software_environment: "R_singscore"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-singscore_scoring.git
+          commit: 97b16ec
+        parameters:
+          - values: "--input_type RankExpr"
+          - values: "--input_type DeltaCentroid"
+      - id: ssgsea
+        software_environment: "R_gsva"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-ssGSEA_scoring.git
+          commit: 337a961
+        parameters:
+          - values: "--input_type RankExpr"
+          - values: "--input_type DeltaCentroid"
+      - id: ucell
+        software_environment: "R_ucell"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-UCell_scoring.git
+          commit: 270aeca
+        parameters:
+          - values: "--input_type RankExpr"
+          - values: "--input_type DeltaCentroid"
+    inputs:
+      - entries:
+        - preprocessing.sampleranks
+        - preprocessing.samplediffranks
+        - preprocessing.referenceranks
+        - preprocessing.meta
+        - preprocessing.genesets
+    outputs:
+      - id: ScoringTools.fullNES
+        path: "{dataset}-fullNES.tsv"
+  #################
+  #Metrics section#
+  #################
+  - id: MetricsValidation
+    modules:
+      - id: top1validation
+        name: "Top1 metrics computation for validation datasets"
+        software_environment: "Py_metrics"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-top1validation.git
+          commit: f4b6332
+      - id: AUCvalidation
+        name: "AUC metrics computation for validation datasets"
+        software_environment: "Py_metrics"
+        repository:
+          url: https://github.com/cphgeno/OB_GSEA-AUCvalidation.git
+          commit: 3595989
+    inputs:
+      - entries:
+        - preprocessing.meta
+        - ScoringTools.fullNES
+    outputs:
+      - id: MetricsValidation.flag
+        path: "{dataset}-metrics_complete.flag"
+
