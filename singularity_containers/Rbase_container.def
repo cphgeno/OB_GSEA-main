@@ -43,7 +43,8 @@ From: rocker/r-base:latest
     Rscript -e 'install.packages(c("systemfonts"), repos="https://cloud.r-project.org")'
 
     # tidyverse (falls back to Cairo instead of ragg)
-    Rscript -e 'install.packages(c("optparse","pheatmap"), repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages(c("optparse","pheatmap", "R.utils"), repos="https://cloud.r-project.org")'
+
 
     # Bioconductor packages
     Rscript -e 'if (!require("BiocManager")) install.packages("BiocManager", repos="https://cloud.r-project.org")'
