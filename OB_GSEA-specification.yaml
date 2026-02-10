@@ -29,22 +29,22 @@ software_backend: apptainer
 software_environments:
   R_base:
     description: "R 4.5.1 base"
-    apptainer: ../singularity_containers/Rbase_container.sif
+    apptainer: oras://quay.io/luca_robinson/ob_gsea/r_base:latest
   R_singscore:
     description: "R 4.5.1 with singscore dependancies"
-    apptainer: ../singularity_containers/Rsingscore_container.sif
+    apptainer: oras://quay.io/luca_robinson/ob_gsea/r_singscore:latest
   R_gsva:
     description: "R 4.5.1 with GSVA dependancies"
-    apptainer: ../singularity_containers/Rgsva_container.sif
+    apptainer: oras://quay.io/luca_robinson/ob_gsea/r_gsva:latest
   R_fgsea:
     description: "R 4.5.1 with fGSEA dependancies"
-    apptainer: ../singularity_containers/Rfgsea_container.sif
+    apptainer: oras://quay.io/luca_robinson/ob_gsea/r_fgsea:latest
   R_ucell:
     description: "R 4.5.1 with UCell dependancies"
-    apptainer: ../singularity_containers/RUCell_container.sif
+    apptainer: oras://quay.io/luca_robinson/ob_gsea/r_ucell:latest
   Py_metrics:
     description: "Python container for metrics"
-    apptainer: ../singularity_containers/Python_metrics_container.sif
+    apptainer: oras://quay.io/luca_robinson/ob_gsea/py_metrics:latest
 
 
 metric_collectors:
