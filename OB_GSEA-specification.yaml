@@ -1,31 +1,11 @@
----
-## benchmark shortname
 id: OB_GSEA
 description: Comparison of single sample Gene Set Enrichment Analysis methods for functional analysis in research and diagnostics
 version: 1.0
-
-## Benchmark builder/contact person
 benchmarker: "Luca Robinson, luca.robinson@regionh.dk"
 
-## Storage flavour for sharing results: currently only S3
-# storage_api: S3
-
-## S3 endpoint to share our benchmark results.
-##   `https://s3_object_storage_url.ch` does not exist, and we don't mind -
-##   not sharing results from our benchmark yet.
-# storage: https://s3_object_storage_url.ch
-
 ## Benchmark YAML schema/specification version.
-benchmark_yaml_spec: 0.1
-
-## License
-## license: MIT  # not yet part of the schema
-
-## The software backend used to run the benchmark
+benchmark_yaml_spec: 0.3.2
 software_backend: apptainer
-
-## Software environment recipes associated to this benchmark.
-##  Suffice to say they are apptainer images in some ORAS-compatible registry.
 software_environments:
   R_base:
     description: "R 4.5.1 base"
