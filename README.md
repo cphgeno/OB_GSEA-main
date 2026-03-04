@@ -59,6 +59,9 @@ The pipeline outputs for each method the score obtained for that analysis, a hea
 - Metrics collector
     - https://github.com/cphgeno/OB_GSEA-MetricsCollector
 
+## Benchmark Topology
+<img width="6012" height="3131" alt="OB_GSEA-topology" src="https://github.com/user-attachments/assets/112dbbcf-02d9-42b9-b972-8d434824fcf8" />
+
 ---
 
 ## Data and Tool integration
@@ -86,5 +89,5 @@ The pipeline outputs for each method the score obtained for that analysis, a hea
 ### Adding new tool
 1. Create a repository for the tool, structured as one of the Methods listed in the [Summary](#summary) section.
     - It must take as input the same input types and output the scores with the same format and naming.
-    - If the new tool is a wrapper for multiple scrogin approaches, see the [gsva module repository](https://github.com/cphgeno/OB_GSEA-GSVA_scoring), allowing to specify the algorithm/tool to be used
+    - If the new tool is a wrapper for multiple scoring approaches, see the [gsva module repository](https://github.com/cphgeno/OB_GSEA-GSVA_scoring) as an example, allowing to specify the algorithm/tool to be used
 2. Add the method in the "ScoringTools" stage in the specification yaml
