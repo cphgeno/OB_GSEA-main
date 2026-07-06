@@ -16,7 +16,7 @@ The methods can be grouped in three classes based on input type provided:
 1. Install [Omnibenchmark](https://docs.omnibenchmark.org/latest/howto/#install-omnibenchmark)
 2. Install [Apptainer](https://github.com/apptainer/apptainer/blob/main/INSTALL.md) (currently only supports running with singularity images)
 3. Clone this repository `git clone git@github.com:cphgeno/OB_GSEA-main.git`
-4. Run locally `ob run benchmark -b OB_GSEA-specification.yaml --local-storage`
+4. Run locally `ob run OB_GSEA-specification.yaml`
 
 The pipeline is set up to run with all publicly available datasets used in the study, but can be modified to include new datasets and gene signatures by providing the `input_dir` argument in the specification yaml for the corresponding data entry.
 
@@ -32,27 +32,12 @@ The pipeline outputs for each method the score obtained for that analysis, a hea
     - https://github.com/cphgeno/OB_GSEA-preprocessing
 - Methods
     - fGSEA - https://github.com/cphgeno/OB_GSEA-fGSEA_scoring
-        - args: ["--input_type", "DeltaCentroid"]
-        - args: ["--input_type", "RankExpr"]
     - GSVA - https://github.com/cphgeno/OB_GSEA-GSVA_scoring
-        - ["--algorithm", "gsva", "--input_type", "RankExpr"]
-        - ["--algorithm", "gsva", "--input_type", "DeltaCentroid"]
-        - ["--algorithm", "gsva", "--input_type", "RankReference"]
-        - ["--algorithm", "plage", "--input_type", "RankExpr"]
-        - ["--algorithm", "plage", "--input_type", "DeltaCentroid"]
-        - ["--algorithm", "plage", "--input_type", "RankReference"]
-        - ["--algorithm", "zscore", "--input_type", "RankExpr"]
-        - ["--algorithm", "zscore", "--input_type", "DeltaCentroid"]
-        - ["--algorithm", "zscore", "--input_type", "RankReference"]
+    - PLAGE - https://github.com/cphgeno/OB_GSEA-GSVA_scoring
+    - Zscore - https://github.com/cphgeno/OB_GSEA-GSVA_scoring
     - ssGSEA - https://github.com/cphgeno/OB_GSEA-ssGSEA_scoring
-        - args: ["--input_type", "RankExpr"]
-        - args: ["--input_type", "DeltaCentroid"]
     - singscore - https://github.com/cphgeno/OB_GSEA-singscore_scoring
-        - args: ["--input_type", "RankExpr"]
-        - args: ["--input_type", "DeltaCentroid"]
     - UCell - https://github.com/cphgeno/OB_GSEA-UCell_scoring
-        - args: ["--input_type", "RankExpr"]
-        - args: ["--input_type", "DeltaCentroid"]
 - Metrics
     - top1 validation - https://github.com/cphgeno/OB_GSEA-top1validation
     - AUC - https://github.com/cphgeno/OB_GSEA-AUCvalidation
